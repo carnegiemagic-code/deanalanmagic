@@ -289,6 +289,7 @@ def main():
         root = "../" * slug.count("/")
         title = fix_dashes(html.unescape(soup.title.get_text().strip())) if soup.title else "Dean Alan"
         desc = fix_dashes(meta(soup, name="description") or meta(soup, property="og:description"))
+        desc = re.sub(r"^This information has also been sent to\s+Hello\s+", "", desc.replace("\u00a0", " "))
         h1 = soup.select_one("main .entry-title, main h1")
         h1_text = fix_dashes(h1.get_text(" ", strip=True)) if h1 else ""
         ec = soup.select_one("main .entry-content")
