@@ -181,6 +181,9 @@ def clean(node, root, attachment_targets):
                         href = s
                     else:
                         href = root + s if s else (root or "./")
+            if not el.get_text(strip=True) and el.find("img") is None:  # empty leftover link
+                el.unwrap()
+                continue
             if href.startswith("mailto:"):
                 el.attrs = {"href": href}
                 continue
