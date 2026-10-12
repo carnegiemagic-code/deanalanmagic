@@ -125,3 +125,6 @@ h3 { font-size: 1.45rem; }
 .cta-band a:not(.btn) { color: var(--gold); }
 .prose table { display: block; overflow-x: auto; }
 .prose img.logo { max-width: 240px; }
+.cols { display: grid; grid-template-columns: 1.25fr 1fr; gap: 28px; align-items: start; margin: 10px 0 24px; }
+.cols .col-img img { margin-top: 6px; width: 100%; }
+@media (max-width: 760px) { .cols { grid-template-columns: 1fr; } }
