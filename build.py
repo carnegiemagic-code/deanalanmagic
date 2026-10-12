@@ -266,6 +266,38 @@ def photo_row(ec, names):
         block.decompose()
 
 
+def list_columns(ec, first_heading):
+    """Home page: the Daycares / Elementary Schools / Other Events lists, side by side.
+    In the old page the next heading was stuck inside a list item ("and many more<br><strong>Other Events</strong>")."""
+    head = next((p for p in ec.find_all("p") if p.get_text(strip=True) == first_heading), None)
+    if head is None:
+        print("  ! list_columns: heading not found", file=sys.stderr)
+        return
+    lists = []
+    node = head.find_next_sibling()
+    while node is not None and node.name == "ul":
+        lists.append(node)
+        node = node.find_next_sibling()
+    groups = [[first_heading, []]]
+    for ul in lists:
+        for li in ul.find_all("li", recursive=False):
+            strong = li.find("strong")
+            if strong is not None:
+                new_title = strong.get_text(strip=True)
+                strong.decompose()
+                for br in li.find_all("br"):
+                    br.decompose()
+                if li.get_text(strip=True):
+                    groups[-1][1].append(li.decode_contents().strip())
+                groups.append([new_title, []])
+            else:
+                groups[-1][1].append(li.decode_contents().strip())
+        ul.decompose()
+    cols = "".join(f"<div><h3>{html.escape(t)}</h3><ul>" + "".join(f"<li>{x}</li>" for x in items) + "</ul></div>"
+                   for t, items in groups if items)
+    head.replace_with(BeautifulSoup(f'<div class="cols3">{cols}</div>', "lxml").find("div"))
+
+
 def mago(form_id):
     return f"""<div class="form-box">
 <script src="https://mago.co/Scripts/form.js"></script>
@@ -367,6 +399,7 @@ def main():
         if not slug:
             two_columns(ec, "Your students deserve", "fallmailing")
             photo_row(ec, ["Christmas-Magic-Show", "000_1009", "Cat-In-The-Hat-Magic"])
+            list_columns(ec, "Daycares")
         inner = ec.decode_contents().strip()
         if forms:
             inner += "\n" + mago(forms[0])

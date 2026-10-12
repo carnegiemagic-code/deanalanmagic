@@ -133,3 +133,8 @@ h3 { font-size: 1.45rem; }
 .row3 img { margin: 0; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
 .row3 figcaption { font-size: .9rem; font-weight: 700; color: var(--muted); text-align: center; margin-top: 6px; }
 @media (max-width: 760px) { .row3 { grid-template-columns: 1fr; } }
+.cols3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 16px 0 24px; }
+.cols3 > div { background: var(--cream); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; }
+.cols3 h3 { margin-top: 0; font-size: 1.25rem; }
+.cols3 ul { margin: 0; padding-left: 20px; font-size: .97rem; }
+@media (max-width: 760px) { .cols3 { grid-template-columns: 1fr; } }
