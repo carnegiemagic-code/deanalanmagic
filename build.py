@@ -475,6 +475,8 @@ def main():
                 t = p.get_text(" ", strip=True)
                 if t.startswith("For Daycares, each month") or t.startswith("You’ll get a Coloring Page"):
                     p.decompose()
+            for t in ec.find_all(string=re.compile("Plus, just for signing up for the e-promo-kit")):
+                t.replace_with(re.sub(r"\s*Plus, just for signing up for the e-promo-kit, we will hook you up with some fun activity pages\.", "", str(t)))
             if forms and form_beside(ec, "To Get More Detailed Information", mago(forms[0])):
                 forms = []  # the form now sits in the right-hand column instead of at the bottom
         inner = ec.decode_contents().strip()
