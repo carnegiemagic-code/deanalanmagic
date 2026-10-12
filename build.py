@@ -350,6 +350,23 @@ def flyer_grid(ec, heading_start, drop=(), drop_text=()):
     head.string = "Click a flyer to find out more about the show"  # one click now (the old page needed two)
 
 
+def form_beside(ec, text_start, form_html):
+    """Home page: the 'To Get More Detailed Information' text on the left, the sign-up form on the right."""
+    first = next((p for p in ec.find_all("p") if p.get_text(strip=True).startswith(text_start)), None)
+    if first is None:
+        print("  ! form_beside: text not found", file=sys.stderr)
+        return False
+    second = first.find_next_sibling("p")
+    soup = BeautifulSoup(f'<div class="cols form-cols"><div class="col-text"></div><div class="col-form">{form_html}</div></div>', "lxml")
+    cols = soup.find("div", class_="cols")
+    first.insert_before(cols)
+    left = cols.find("div", class_="col-text")
+    left.append(first.extract())
+    if second is not None:
+        left.append(second.extract())
+    return True
+
+
 def mago(form_id):
     return f"""<div class="form-box">
 <script src="https://mago.co/Scripts/form.js"></script>
@@ -454,9 +471,12 @@ def main():
             two_columns(ec, "Your students deserve", "fallmailing")
             photo_row(ec, ["Christmas-Magic-Show", "000_1009", "Cat-In-The-Hat-Magic"])
             list_columns(ec, "Daycares")
-            for p in ec.find_all("p"):  # Dean, Oct 12 2026: take this line off the home page
-                if p.get_text(" ", strip=True).startswith("For Daycares, each month"):
+            for p in ec.find_all("p"):  # Dean, Oct 12 2026: take these off the home page
+                t = p.get_text(" ", strip=True)
+                if t.startswith("For Daycares, each month") or t.startswith("You’ll get a Coloring Page"):
                     p.decompose()
+            if forms and form_beside(ec, "To Get More Detailed Information", mago(forms[0])):
+                forms = []  # the form now sits in the right-hand column instead of at the bottom
         inner = ec.decode_contents().strip()
         if forms:
             inner += "\n" + mago(forms[0])

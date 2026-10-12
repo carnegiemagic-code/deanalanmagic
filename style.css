@@ -144,3 +144,5 @@ h3 { font-size: 1.45rem; }
 .flyer span { margin-top: 8px; font-weight: 800; font-size: .9rem; text-align: center; }
 .flyer:hover { border-color: var(--red); }
 @media (max-width: 760px) { .flyers { grid-template-columns: 1fr 1fr; } .prose .flyer img { height: 160px; } }
+.form-cols { align-items: start; }
+.form-cols .form-box { margin-top: 0; }
