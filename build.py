@@ -320,7 +320,11 @@ def flyer_grid(ec, heading_start, drop=(), drop_text=()):
             a = cell.find("a")
             href = a["href"] if a is not None and "e-promo-kit" not in a["href"] else img["src"]
             label = labels[k].get_text(" ", strip=True) if k < len(labels) else ""
-            cards.append((href, img["src"], img.get("alt", ""), label))
+            src = img["src"]
+            if "FAll2024" in src:  # 2024 flyer still shows the retired Thankfully Fun show: use the 2025 one
+                src = src.replace("FAll2024-f09ccf.jpg", "fallmailing_2025-570x820-962aa0.jpg")
+                href = src
+            cards.append((href, src, img.get("alt", "") or "Fall-o-Ween, Turkey-Kadabra and A Very Merry Magic Show", label))
         nxt = node.find_next_sibling()
         node.decompose()
         node = nxt
