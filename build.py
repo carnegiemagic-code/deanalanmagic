@@ -52,6 +52,7 @@ def slug_of(url):
 def fix_dashes(text):
     # house rule: no em dashes in Dean's copy
     text = re.sub(r"\s*—\s*", ", ", text)
+    text = re.sub(r",\s*,", ",", text)
     return text.replace("–", "-")
 
 
@@ -203,6 +204,29 @@ def clean(node, root, attachment_targets):
     return node
 
 
+def two_columns(ec, text_start, image_name):
+    """Home page: put the seasonal-shows text beside its flyer (text left, flyer right)."""
+    first = next((p for p in ec.find_all("p") if text_start in p.get_text()), None)
+    img = next((i for i in ec.find_all("img") if image_name in i.get("src", "")), None)
+    if not first or not img:
+        print("  ! two_columns: anchor not found", file=sys.stderr)
+        return
+    block = img
+    while block.parent is not ec:
+        block = block.parent
+    soup = BeautifulSoup('<div class="cols"><div class="col-text"></div><div class="col-img"></div></div>', "lxml")
+    cols = soup.find("div", class_="cols")
+    first.insert_before(cols)
+    left = cols.find("div", class_="col-text")
+    node = cols.next_sibling
+    while node is not None and node is not block:
+        nxt = node.next_sibling
+        left.append(node.extract())
+        node = nxt
+    cols.find("div", class_="col-img").append(img.extract())
+    block.decompose()
+
+
 def mago(form_id):
     return f"""<div class="form-box">
 <script src="https://mago.co/Scripts/form.js"></script>
@@ -298,6 +322,8 @@ def main():
             continue
         forms = re.findall(r"'formId':'([0-9a-f-]{36})'", str(ec))
         clean(ec, root, attachment_targets)
+        if not slug:
+            two_columns(ec, "Your students deserve", "fallmailing")
         inner = ec.decode_contents().strip()
         if forms:
             inner += "\n" + mago(forms[0])
