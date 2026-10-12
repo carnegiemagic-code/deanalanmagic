@@ -367,6 +367,36 @@ def form_beside(ec, text_start, form_html):
     return True
 
 
+def move_after(ec, image_name, target_class):
+    """Move the block holding an image so it sits right after the element with target_class."""
+    img = next((i for i in ec.find_all("img") if image_name in i.get("src", "")), None)
+    target = ec.find(class_=target_class)
+    if img is None or target is None:
+        print("  ! move_after: not found", image_name, file=sys.stderr)
+        return
+    block = img
+    while block.parent is not ec:
+        block = block.parent
+    target.insert_after(block.extract())
+
+
+def photo_left(ec, image_name):
+    """Float a photo to the left of the paragraph it sits in, so the text wraps beside it."""
+    img = next((i for i in ec.find_all("img") if image_name in i.get("src", "")), None)
+    if img is None:
+        print("  ! photo_left: not found", image_name, file=sys.stderr)
+        return
+    a = img.parent if img.parent.name == "a" else None
+    if a is not None and a.get("href", "").startswith("img/"):
+        img["src"] = a["href"]
+    img["class"] = "float-left"
+    p = img.find_parent("p")
+    if p is not None:
+        first_br = img.find_next_sibling("br") or (a.find_next_sibling("br") if a is not None else None)
+        if first_br is not None:
+            first_br.decompose()
+
+
 def mago(form_id):
     return f"""<div class="form-box">
 <script src="https://mago.co/Scripts/form.js"></script>
@@ -471,6 +501,8 @@ def main():
             two_columns(ec, "Your students deserve", "fallmailing")
             photo_row(ec, ["Christmas-Magic-Show", "000_1009", "Cat-In-The-Hat-Magic"])
             list_columns(ec, "Daycares")
+            move_after(ec, "daycarelist2025", "cols3")  # Dean: daycare logos graphic goes under the three lists
+            photo_left(ec, "newseussbook")  # Dean: Who Is Dean Alan photo to the left of the text
             for p in ec.find_all("p"):  # Dean, Oct 12 2026: take these off the home page
                 t = p.get_text(" ", strip=True)
                 if t.startswith("For Daycares, each month") or t.startswith("You’ll get a Coloring Page"):

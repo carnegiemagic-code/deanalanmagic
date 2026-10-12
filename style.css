@@ -146,3 +146,6 @@ h3 { font-size: 1.45rem; }
 @media (max-width: 760px) { .flyers { grid-template-columns: 1fr 1fr; } .prose .flyer img { height: 160px; } }
 .form-cols { align-items: start; }
 .form-cols .form-box { margin-top: 0; }
+.prose img.float-left { float: left; width: 42%; max-width: 340px; margin: 4px 22px 12px 0; }
+.prose hr { clear: both; }
+@media (max-width: 760px) { .prose img.float-left { float: none; width: 100%; max-width: none; margin: 12px 0; } }
