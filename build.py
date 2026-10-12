@@ -324,8 +324,8 @@ def flyer_grid(ec, heading_start, drop=(), drop_text=()):
             if "FAll2024" in src:  # 2024 flyer shows the retired Thankfully Fun show: use the 2025 flyers, one per show
                 base = src.rsplit("/", 1)[0] + "/"
                 pages = "../"
-                cards += [(pages + "the-fall-o-ween-magic-show/", base + "flyer-falloween-2025.jpg", "The Fall-o-Ween Magic Show", "OCTOBER"),
-                          (base + "flyer-turkey-kadabra-2025.jpg", base + "flyer-turkey-kadabra-2025.jpg", "Turkey-Kadabra", "NOVEMBER"),
+                cards += [(pages + "the-fall-o-ween-magic-show/", base + "falloweenflyer2026.jpg", "The Fall-o-Ween Magic Show", "OCTOBER"),
+                          (base + "TurkeyKadabraFlyer2025.jpg", base + "TurkeyKadabraFlyer2025.jpg", "Turkey-Kadabra", "NOVEMBER"),
                           (pages + "the-very-merry-magic-show/", base + "flyer-very-merry-2025.jpg", "A Very Merry Magic Show", "DECEMBER")]
                 continue
             cards.append((href, src, img.get("alt", ""), label))
