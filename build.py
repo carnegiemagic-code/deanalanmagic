@@ -336,6 +336,7 @@ def flyer_grid(ec, heading_start, drop=(), drop_text=()):
         f'<a class="flyer" href="{h}"><img src="{src}" alt="{html.escape(alt or label)}" loading="lazy">'
         f'<span>{html.escape(label)}</span></a>' for h, src, alt, label in cards)
     head.insert_after(BeautifulSoup(f'<div class="flyers">{grid}</div>', "lxml").find("div"))
+    head.string = "Click a flyer to find out more about the show"  # one click now (the old page needed two)
 
 
 def mago(form_id):
