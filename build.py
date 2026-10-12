@@ -152,6 +152,8 @@ def clean(node, root, attachment_targets):
                 continue
             alt = el.get("alt") or ""
             el.attrs = {"src": root + local, "alt": alt, "loading": "lazy"}
+            if re.search(r"(?i)dabutton", local):  # the round Dean Alan logo: keep it small
+                el["class"] = "logo"
             continue
         if el.name == "a":
             href = (el.get("href") or "").strip()

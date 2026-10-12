@@ -124,3 +124,4 @@ h3 { font-size: 1.45rem; }
 .post-list li { padding: 10px 0; border-bottom: 1px solid var(--line); }
 .cta-band a:not(.btn) { color: var(--gold); }
 .prose table { display: block; overflow-x: auto; }
+.prose img.logo { max-width: 240px; }
