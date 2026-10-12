@@ -178,6 +178,9 @@ def clean(node, root, attachment_targets):
             el.attrs = keep
             continue
         el.attrs = {k: v for k, v in el.attrs.items() if k in ("colspan", "rowspan")}
+    # drop leftover captions that are just a file name (e.g. "cropped-2016DAbutton_edited-1aa.png")
+    for t in node.find_all(string=re.compile(r"^\s*[\w.-]+\.(png|jpe?g|gif|webp)\s*$", re.I)):
+        t.extract()
     # drop empty wrappers left behind
     for el in node.find_all(["div", "span", "p", "section", "figure"]):
         if not el.get_text(strip=True) and not el.find(["img", "iframe"]):
@@ -197,6 +200,9 @@ def mago(form_id):
   magoForm.display();
 </script>
 </div>"""
+
+
+CSS_VERSION = hashlib.md5(open(os.path.join(HERE, "style.css"), "rb").read()).hexdigest()[:8]
 
 
 def shell(slug, title, description, body, image=None, noindex=False, extra_head=""):
@@ -222,7 +228,7 @@ def shell(slug, title, description, body, image=None, noindex=False, extra_head=
 {extra_head}<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{root}style.css">
+<link rel="stylesheet" href="{root}style.css?v={CSS_VERSION}">
 </head>
 <body>
 <header class="site-head">
