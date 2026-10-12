@@ -111,7 +111,8 @@ def preprocess(raw):
     # these blanks were filled with the visitor's name/email by the Amazing System plugin (needs WordPress)
     raw = raw.replace("<p>Thank you !</p>", "<p>Thank you!</p>").replace("confirmation email to you at .", "confirmation email to you.")
     raw = raw.replace("<p>This information has also been sent to <strong></strong></p>", "")
-    raw = re.sub(r"<p>Hello(?:\s|&nbsp;|&#160;|\u00a0)*</p>", "<p>Hello!</p>", raw)
+    raw = re.sub(r"<p>Hello\s*(?=<p>)", "<p>Hello!</p>\n", raw)
+    raw = raw.replace("This information has also been sent to [ez_date] Hello &nbsp; ", "")
     return raw
 
 
