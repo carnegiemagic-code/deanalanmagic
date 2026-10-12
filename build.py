@@ -114,6 +114,9 @@ def preprocess(raw):
     raw = raw.replace("<p>This information has also been sent to <strong></strong></p>", "")
     raw = re.sub(r"<p>Hello\s*(?=<p>)", "<p>Hello!</p>\n", raw)
     raw = raw.replace("This information has also been sent to [ez_date] Hello &nbsp; ", "")
+    # Dean, Oct 12 2026: virtual shows are no longer offered, take every mention out
+    raw = re.sub(r"<h3>VIRTUAL MAGIC SHOWS</h3>.*?(?=<h4>)", "", raw, flags=re.S)
+    raw = raw.replace(" and can be presented either LIVE in person or Virtually.", ".")
     return raw
 
 
