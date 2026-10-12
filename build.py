@@ -298,6 +298,46 @@ def list_columns(ec, first_heading):
     head.replace_with(BeautifulSoup(f'<div class="cols3">{cols}</div>', "lxml").find("div"))
 
 
+def flyer_grid(ec, heading_start, drop=(), drop_text=()):
+    """E-promo kit: the season flyers, as same-size thumbnails in a grid, each with its label.
+    The old page used little two-column tables (images in one row, labels in the next)."""
+    head = next((h for h in ec.find_all(["h2", "h3"]) if h.get_text(strip=True).startswith(heading_start)), None)
+    if head is None:
+        print("  ! flyer_grid: heading not found", file=sys.stderr)
+        return
+    cards = []
+    node = head.find_next_sibling()
+    while node is not None and node.name == "table":
+        rows = node.find_all("tr")
+        imgs, labels = rows[0].find_all("td"), (rows[1].find_all("td") if len(rows) > 1 else [])
+        for k, cell in enumerate(imgs):
+            img = cell.find("img")
+            if img is None:
+                continue
+            a = cell.find("a")
+            href = a["href"] if a is not None and "e-promo-kit" not in a["href"] else img["src"]
+            label = labels[k].get_text(" ", strip=True) if k < len(labels) else ""
+            cards.append((href, img["src"], img.get("alt", ""), label))
+        nxt = node.find_next_sibling()
+        node.decompose()
+        node = nxt
+    for name in drop:  # flyers Dean asked to take off
+        for img in ec.find_all("img"):
+            if name in img.get("src", ""):
+                block = img
+                while block.parent is not ec:
+                    block = block.parent
+                block.decompose()
+    for t in drop_text:
+        for p in ec.find_all("p"):
+            if p.get_text(strip=True) == t:
+                p.decompose()
+    grid = "".join(
+        f'<a class="flyer" href="{h}"><img src="{src}" alt="{html.escape(alt or label)}" loading="lazy">'
+        f'<span>{html.escape(label)}</span></a>' for h, src, alt, label in cards)
+    head.insert_after(BeautifulSoup(f'<div class="flyers">{grid}</div>', "lxml").find("div"))
+
+
 def mago(form_id):
     return f"""<div class="form-box">
 <script src="https://mago.co/Scripts/form.js"></script>
@@ -396,6 +436,8 @@ def main():
             continue
         forms = re.findall(r"'formId':'([0-9a-f-]{36})'", str(ec))
         clean(ec, root, attachment_targets)
+        if slug == "e-promo-kit/":
+            flyer_grid(ec, "CLICK AN IMAGE", drop=["SummerCamp2026"], drop_text=["Summer 2026"])
         if not slug:
             two_columns(ec, "Your students deserve", "fallmailing")
             photo_row(ec, ["Christmas-Magic-Show", "000_1009", "Cat-In-The-Hat-Magic"])
