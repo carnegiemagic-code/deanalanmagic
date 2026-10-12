@@ -32,7 +32,7 @@ PHONE_LINK = "tel:+17034048902"
 EMAIL = "info@deanalanmagic.com"
 CONTACT_FORM = "0aebb4a9-0d90-4159-8959-4056ae7e6776"
 
-NAV = [("", "Home"), ("shows/", "Shows"), ("reading/", "Reading Shows"),
+NAV = [("", "Home"), ("shows/", "Shows"), ("https://wizardofreading.com/", "Reading Shows"),
        ("after-school/", "After-School"), ("category/blog-da/", "Blog"),
        ("reviews/", "Reviews"), ("book/", "Contact")]
 
@@ -108,6 +108,10 @@ def preprocess(raw):
     raw = re.sub(r"\[ez_youtube[^\]]*?(?:youtu\.be/|v=|embed/)([A-Za-z0-9_-]{11})[^\]]*\]",
                  r'<iframe src="https://www.youtube.com/embed/\1"></iframe>', raw)
     raw = re.sub(r"\[/?ez_[a-z_]+\]", "", raw)
+    # these blanks were filled with the visitor's name/email by the Amazing System plugin (needs WordPress)
+    raw = raw.replace("<p>Thank you !</p>", "<p>Thank you!</p>").replace("confirmation email to you at .", "confirmation email to you.")
+    raw = raw.replace("<p>This information has also been sent to <strong></strong></p>", "")
+    raw = re.sub(r"<p>Hello(?:\s|&nbsp;|&#160;|\u00a0)*</p>", "<p>Hello!</p>", raw)
     return raw
 
 
@@ -165,7 +169,10 @@ def clean(node, root, attachment_targets):
                 else:
                     s = slug_of(href)
                     s = attachment_targets.get(s, s)
-                    href = root + s if s else (root or "./")
+                    if s.startswith("http"):
+                        href = s
+                    else:
+                        href = root + s if s else (root or "./")
             if href.startswith("mailto:"):
                 el.attrs = {"href": href}
                 continue
@@ -181,6 +188,10 @@ def clean(node, root, attachment_targets):
     # drop leftover captions that are just a file name (e.g. "cropped-2016DAbutton_edited-1aa.png")
     for t in node.find_all(string=re.compile(r"^\s*[\w.-]+\.(png|jpe?g|gif|webp)\s*$", re.I)):
         t.extract()
+    for img in node.find_all("img"):
+        sib = img.find_next_sibling()
+        if sib is not None and sib.name == "span" and sib.get_text(strip=True) == (img.get("alt") or "").strip():
+            sib.decompose()
     # drop empty wrappers left behind
     for el in node.find_all(["div", "span", "p", "section", "figure"]):
         if not el.get_text(strip=True) and not el.find(["img", "iframe"]):
@@ -207,7 +218,7 @@ CSS_VERSION = hashlib.md5(open(os.path.join(HERE, "style.css"), "rb").read()).he
 
 def shell(slug, title, description, body, image=None, noindex=False, extra_head=""):
     root = "../" * slug.count("/")
-    nav ="".join(f'<a href="{(root + s) if s else (root or "./")}"'
+    nav = "".join(f'<a href="{s if s.startswith("http") else ((root + s) if s else (root or "./"))}"'
                   + (' aria-current="page"' if s == slug else "") + f">{label}</a>" for s, label in NAV)
     og = image or "img/" + "dean-alan-og.jpg"
     robots = '<meta name="robots" content="noindex, follow">\n' if noindex else ""
@@ -318,9 +329,10 @@ def main():
         if os.path.exists(os.path.join(HERE, old, "index.html")) and old in sitemap:
             continue
         root = "../" * old.count("/")
-        dest = (root + target) if target else (root or "./")
+        canon = target if target.startswith("http") else SITE + target
+        dest = target if target.startswith("http") else ((root + target) if target else (root or "./"))
         write(old, f'<!doctype html><meta charset="utf-8"><title>Dean Alan</title>'
-                   f'<meta name="robots" content="noindex"><link rel="canonical" href="{SITE}{target}">'
+                   f'<meta name="robots" content="noindex"><link rel="canonical" href="{canon}">'
                    f'<meta http-equiv="refresh" content="0; url={dest}"><a href="{dest}">Continue</a>')
 
     with open(os.path.join(HERE, "sitemap.xml"), "w") as f:
