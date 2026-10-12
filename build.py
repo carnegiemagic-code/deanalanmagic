@@ -117,6 +117,9 @@ def preprocess(raw):
     return raw
 
 
+BUILT = set()
+
+
 def clean(node, root, attachment_targets):
     for el in node.select("[data-cfemail]"):
         el.replace_with(cf_decode(el["data-cfemail"]))
@@ -170,6 +173,9 @@ def clean(node, root, attachment_targets):
                     href = (root + local) if local else ""
                 else:
                     s = slug_of(href)
+                    if el.find("img") is not None and s not in attachment_targets and s not in BUILT:
+                        el.unwrap()
+                        continue
                     s = attachment_targets.get(s, s)
                     if s.startswith("http"):
                         href = s
@@ -225,6 +231,36 @@ def two_columns(ec, text_start, image_name):
         node = nxt
     cols.find("div", class_="col-img").append(img.extract())
     block.decompose()
+
+
+def photo_row(ec, names):
+    """Home page: show these photos side by side (three columns), keeping any caption."""
+    found = []
+    for name in names:
+        img = next((i for i in ec.find_all("img") if name in i.get("src", "")), None)
+        if img is None:
+            print("  ! photo_row: missing", name, file=sys.stderr)
+            return
+        a = img.parent if img.parent.name == "a" else None
+        if a is not None and a.get("href", "").startswith("img/"):
+            img["src"] = a["href"]  # the full-size photo, sharper in a column
+        block = img
+        while block.parent is not ec:
+            block = block.parent
+        cap = block.find("figcaption")
+        found.append((img, cap.get_text(strip=True) if cap else "", block))
+    soup = BeautifulSoup('<div class="row3"></div>', "lxml")
+    row = soup.find("div", class_="row3")
+    found[0][2].insert_before(row)
+    for img, cap, block in found:
+        fig = soup.new_tag("figure")
+        fig.append(img.extract())
+        if cap:
+            fc = soup.new_tag("figcaption")
+            fc.string = cap
+            fig.append(fc)
+        row.append(fig)
+        block.decompose()
 
 
 def mago(form_id):
@@ -302,10 +338,12 @@ def meta(soup, **kw):
 
 
 def main():
+    global BUILT
     dropped = set(open(os.path.join(SRC, "drop.txt")).read().split())  # retired/outdated pages, forwarded instead
     pages = [s for s in (slug_of(u) for u in open(os.path.join(SRC, "page-urls.txt")).read().split()) if s not in dropped]
     posts = [s for s in (slug_of(u) for u in open(os.path.join(SRC, "post-urls.txt")).read().split()) if s not in dropped]
     attachment_targets = json.load(open(os.path.join(SRC, "attachments.json")))  # attachment page -> parent page
+    BUILT = set(pages + posts) | {""}
     sitemap, blog = [], []
     for slug in pages + posts:
         fname = (slug.strip("/").replace("/", "__") or "index") + ".html"
@@ -313,6 +351,7 @@ def main():
         root = "../" * slug.count("/")
         title = fix_dashes(html.unescape(soup.title.get_text().strip())) if soup.title else "Dean Alan"
         desc = fix_dashes(meta(soup, name="description") or meta(soup, property="og:description"))
+        desc = re.split(r"<|&lt;", desc)[0].strip()
         desc = re.sub(r"^This information has also been sent to\s+Hello\s+", "", desc.replace("\u00a0", " "))
         h1 = soup.select_one("main .entry-title, main h1")
         h1_text = fix_dashes(h1.get_text(" ", strip=True)) if h1 else ""
@@ -324,6 +363,7 @@ def main():
         clean(ec, root, attachment_targets)
         if not slug:
             two_columns(ec, "Your students deserve", "fallmailing")
+            photo_row(ec, ["Christmas-Magic-Show", "000_1009", "Cat-In-The-Hat-Magic"])
         inner = ec.decode_contents().strip()
         if forms:
             inner += "\n" + mago(forms[0])

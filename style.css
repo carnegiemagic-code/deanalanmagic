@@ -128,3 +128,8 @@ h3 { font-size: 1.45rem; }
 .cols { display: grid; grid-template-columns: 1.25fr 1fr; gap: 28px; align-items: start; margin: 10px 0 24px; }
 .cols .col-img img { margin-top: 6px; width: 100%; }
 @media (max-width: 760px) { .cols { grid-template-columns: 1fr; } }
+.row3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 20px 0; }
+.row3 figure { margin: 0; }
+.row3 img { margin: 0; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.row3 figcaption { font-size: .9rem; font-weight: 700; color: var(--muted); text-align: center; margin-top: 6px; }
+@media (max-width: 760px) { .row3 { grid-template-columns: 1fr; } }
