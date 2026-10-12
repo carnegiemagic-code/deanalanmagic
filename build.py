@@ -454,6 +454,9 @@ def main():
             two_columns(ec, "Your students deserve", "fallmailing")
             photo_row(ec, ["Christmas-Magic-Show", "000_1009", "Cat-In-The-Hat-Magic"])
             list_columns(ec, "Daycares")
+            for p in ec.find_all("p"):  # Dean, Oct 12 2026: take this line off the home page
+                if p.get_text(" ", strip=True).startswith("For Daycares, each month"):
+                    p.decompose()
         inner = ec.decode_contents().strip()
         if forms:
             inner += "\n" + mago(forms[0])
