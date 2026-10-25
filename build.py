@@ -408,6 +408,16 @@ def mago(form_id):
 </div>"""
 
 
+# Business card for search engines and voice assistants (Google, Bing/Alexa, Siri). Homepage only.
+BUSINESS_LD = '<script type="application/ld+json">' + json.dumps({
+    "@context": "https://schema.org", "@type": "EntertainmentBusiness", "@id": SITE + "#business",
+    "name": "Dean Alan Magic", "alternateName": "Dean Alan, The Amazing Magician",
+    "description": "Educational magic shows for schools, libraries, daycares and camps in the Nashville, Tennessee area and Northern Virginia.",
+    "url": SITE, "telephone": "+1-703-404-8902", "email": EMAIL, "image": SITE + "img/dean-alan-og.jpg",
+    "areaServed": [{"@type": "City", "name": "Nashville, Tennessee"}, {"@type": "Place", "name": "Northern Virginia"}],
+    "founder": {"@type": "Person", "name": "Dean Alan"}, "sameAs": ["https://wizardofreading.com/"],
+}) + '</script>\n'
+
 CSS_VERSION = hashlib.md5(open(os.path.join(HERE, "style.css"), "rb").read()).hexdigest()[:8]
 
 
@@ -528,7 +538,7 @@ def main():
             body += (f'<section class="cta-band"><div class="wrap center"><h2>Book a show</h2>'
                      f'<p>Call <a href="{PHONE_LINK}">{PHONE}</a> or use the contact form.</p>'
                      f'<a class="btn" href="{root}book/">Contact Dean Alan</a></div></section>')
-        write(slug, shell(slug, title, desc, body, og_local, slug in NOINDEX))
+        write(slug, shell(slug, title, desc, body, og_local, slug in NOINDEX, BUSINESS_LD if not slug else ""))
         if slug not in NOINDEX:
             sitemap.append(slug)
 
