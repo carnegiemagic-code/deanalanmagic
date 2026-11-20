@@ -244,9 +244,10 @@ WINTER_SECTION = """
 <ul>
 <li><strong>The North Pole Magic Show</strong></li>
 <li><strong>The Very Frozen Magic Show</strong></li>
-<li><strong>The Wizards Workshop</strong> (for school agers)</li>
+<li><strong>The Wizards Workshop</strong> (for school agers and after school groups)</li>
 </ul>
-<p>These shows are available in <strong>December, the school holiday weeks, and in January.</strong></p>
+<p>The North Pole Magic Show and The Very Frozen Magic Show are available in <strong>December, the school holiday weeks, and in January.</strong></p>
+<p>The Wizards Workshop is offered during <strong>the two weeks school is out in December</strong>, and it is a favorite with after school programs. Virginia groups can also book it in January.</p>
 <p><img alt="The North Pole Magic Show, The Very Frozen Magic Show and The Wizards Workshop with Dean Alan the Magician" loading="lazy" src="img/winter-shows-2026-27.jpg"/></p>
 <p>But here’s the truth: <strong>Winter dates disappear FAST.</strong> Schools and libraries book these shows months in advance, and once the calendar fills… that’s it.</p>
 <p>If you want one of these seasonal shows, you must <strong>lock in your date now</strong>, waiting almost always means missing out.</p>
