@@ -554,6 +554,13 @@ def main():
             for li in ec.find_all("li"):  # Dean, Nov 20 2026: these were Carnegie events, not Dean Alan
                 if li.get_text(strip=True) in ("Springfield Town Center", "Weinberg Center for the Arts"):
                     li.decompose()
+            loudoun = next((li for li in ec.find_all("li") if li.get_text(strip=True) == "Loudoun Cty Libraries"), None)
+            if loudoun:  # Dean, Nov 20 2026: add the other NoVA library systems after Loudoun
+                for name in reversed(["Prince William Cty Libraries", "Fairfax Cty Libraries", "Arlington Cty Libraries"]):
+                    new_li = BeautifulSoup(f"<li>{name}</li>", "lxml").li
+                    loudoun.insert_after(new_li)
+            else:
+                print("  ! Loudoun Cty Libraries not found", file=sys.stderr)
             list_columns(ec, "Daycares")
             move_after(ec, "daycarelist2025", "cols3")  # Dean: daycare logos graphic goes under the three lists
             photo_left(ec, "newseussbook")  # Dean: Who Is Dean Alan photo to the left of the text
