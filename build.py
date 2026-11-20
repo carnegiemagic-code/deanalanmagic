@@ -551,6 +551,9 @@ def main():
         if not slug:
             winter_section(ec)
             photo_row(ec, ["Christmas-Magic-Show", "000_1009", "Cat-In-The-Hat-Magic"])
+            for li in ec.find_all("li"):  # Dean, Nov 20 2026: these were Carnegie events, not Dean Alan
+                if li.get_text(strip=True) in ("Springfield Town Center", "Weinberg Center for the Arts"):
+                    li.decompose()
             list_columns(ec, "Daycares")
             move_after(ec, "daycarelist2025", "cols3")  # Dean: daycare logos graphic goes under the three lists
             photo_left(ec, "newseussbook")  # Dean: Who Is Dean Alan photo to the left of the text
