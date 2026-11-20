@@ -239,6 +239,46 @@ def two_columns(ec, text_start, image_name):
     block.decompose()
 
 
+WINTER_SECTION = """
+<p>Your students deserve a seasonal show they’ll <em>never forget</em>, and this winter, I’m offering <strong>three blockbuster programs</strong>:</p>
+<ul>
+<li><strong>The North Pole Magic Show</strong></li>
+<li><strong>A Very Frozen Magic Show</strong></li>
+<li><strong>The Wizards Workshop</strong> (for school agers)</li>
+</ul>
+<p>These shows are available in <strong>December, the school holiday weeks, and in January.</strong></p>
+<p><img alt="The North Pole Magic Show, A Very Frozen Magic Show and The Wizards Workshop with Dean Alan the Magician" loading="lazy" src="img/winter-shows-2026-27.jpg"/></p>
+<p>But here’s the truth: <strong>Winter dates disappear FAST.</strong> Schools and libraries book these shows months in advance, and once the calendar fills… that’s it.</p>
+<p>If you want one of these seasonal shows, you must <strong>lock in your date now</strong>, waiting almost always means missing out.</p>
+<h2><strong>Ready to reserve your spot?</strong></h2>
+<p>Reach out today and secure your show before the season sells out.</p>
+"""
+
+
+def winter_section(ec):
+    """Dean, Nov 20 2026: home page seasonal block becomes the 2026-27 winter shows, wide flyer image full width."""
+    h1 = next((h for h in ec.find_all("h1") if "Extremely Limited Availability" in h.get_text()), None)
+    img = next((i for i in ec.find_all("img") if "fallmailing" in i.get("src", "")), None)
+    if not h1 or not img:
+        print("  ! winter_section: anchor not found", file=sys.stderr)
+        return
+    block = img
+    while block.parent is not ec:
+        block = block.parent
+    node = h1.next_sibling
+    while node is not None:
+        nxt = node.next_sibling
+        node.extract()
+        if node is block:
+            break
+        node = nxt
+    h1.clear()
+    h1.append(BeautifulSoup("<strong>2026-27 WINTER Magic Shows, Extremely Limited Availability</strong>", "lxml").strong)
+    new = BeautifulSoup(f"<div>{WINTER_SECTION}</div>", "lxml").div
+    for el in reversed(list(new.contents)):
+        h1.insert_after(el.extract())
+
+
 def photo_row(ec, names):
     """Home page: show these photos side by side (three columns), keeping any caption."""
     found = []
@@ -508,7 +548,7 @@ def main():
         if slug == "e-promo-kit/":
             flyer_grid(ec, "CLICK AN IMAGE", drop=["SummerCamp2026"], drop_text=["Summer 2026"])
         if not slug:
-            two_columns(ec, "Your students deserve", "fallmailing")
+            winter_section(ec)
             photo_row(ec, ["Christmas-Magic-Show", "000_1009", "Cat-In-The-Hat-Magic"])
             list_columns(ec, "Daycares")
             move_after(ec, "daycarelist2025", "cols3")  # Dean: daycare logos graphic goes under the three lists
